@@ -5,7 +5,7 @@ param(
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
-Import-Module (Join-Path $PSScriptRoot 'Demo.Common.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'Demo.Common.psm1')
 $config = Import-DemoConfig -Path $ConfigPath -Phase Runtime
 $content = Join-Path $PSScriptRoot '..\content\sovereignty-demo.txt'
 if (-not (Test-Path -LiteralPath $content -PathType Leaf)) { throw 'Synthetic demo content file is missing.' }

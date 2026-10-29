@@ -9,7 +9,7 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 if (-not $AuthorizeLiveChanges) { throw 'This opt-in rehearsal changes a dedicated key. Explicit live authorization is required.' }
-Import-Module (Join-Path $PSScriptRoot 'Demo.Common.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'Demo.Common.psm1')
 [void](Import-DemoConfig $ConfigPath -Phase Runtime)
 $repo = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../..'))
 $evidence = [System.IO.Path]::GetFullPath($EvidenceDirectory)

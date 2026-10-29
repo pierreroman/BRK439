@@ -2,7 +2,7 @@
 param([Parameter(Mandatory)][string]$ConfigPath, [switch]$AuthorizeLiveChanges, [switch]$SmokeTest)
 $ErrorActionPreference = 'Stop'
 if (-not $IsWindows -and $PSVersionTable.PSEdition -ne 'Desktop') { throw 'This control requires Windows Forms on Windows.' }
-Import-Module (Join-Path $PSScriptRoot 'Demo.Common.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'Demo.Common.psm1')
 $config = Import-DemoConfig -Path $ConfigPath -Phase Runtime
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing

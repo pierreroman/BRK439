@@ -2,6 +2,8 @@ param config object
 param prefix string
 param subnetId string
 param controllerIdentityId string
+param bootstrapIdentityId string = ''
+param adminUsername string = config.sshUser
 
 resource nic 'Microsoft.Network/networkInterfaces@2024-05-01' = {
   name: '${prefix}-nic'
@@ -40,7 +42,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2024-07-01' = {
   tags: { purpose: 'demo2-only' }
   identity: {
     type: 'SystemAssigned, UserAssigned'
-    userAssignedIdentities: { '${controllerIdentityId}': {} }
+    userAssignedIdentities: union({ '${controllerIdentityId}': {} }, empty(bootstrapIdentityId) ? {} : { '${bootstrapIdentityId}': {} })
   }
   properties: {
     hardwareProfile: { vmSize: config.vmSize }
@@ -50,11 +52,11 @@ resource vm 'Microsoft.Compute/virtualMachines@2024-07-01' = {
     }
     osProfile: {
       computerName: '${prefix}-access'
-      adminUsername: config.sshUser
+      adminUsername: adminUsername
       linuxConfiguration: {
         disablePasswordAuthentication: true
         provisionVMAgent: true
-        ssh: { publicKeys: [{ path: '/home/${config.sshUser}/.ssh/authorized_keys', keyData: config.sshPublicKey }] }
+        ssh: { publicKeys: [{ path: '/home/${adminUsername}/.ssh/authorized_keys', keyData: config.sshPublicKey }] }
       }
     }
     storageProfile: {

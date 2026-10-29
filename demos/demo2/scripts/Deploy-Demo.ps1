@@ -6,7 +6,9 @@ param(
     [switch]$PreflightReviewed,
     [switch]$HsmBootstrapVerified,
     [switch]$ExistingPrivateConnectivityApproved,
-    [switch]$ExistingEgressApproved
+    [switch]$ExistingEgressApproved,
+    [string]$InstallationId = '',
+    [switch]$BootstrapEnabled
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
@@ -53,6 +55,7 @@ $parameters = 'config=@' + (Resolve-Path -LiteralPath $ConfigPath).ProviderPath
 $result = Invoke-AzJson -Arguments @(
     'deployment', 'sub', 'create', '--name', "demo2-$Stage-$([DateTime]::UtcNow.ToString('yyyyMMddHHmmss'))",
     '--subscription', $config.subscriptionId, '--location', $config.location,
-    '--template-file', $template, '--parameters', $parameters, "stage=$Stage"
+    '--template-file', $template, '--parameters', $parameters, "stage=$Stage",
+    "installationId=$InstallationId", "bootstrapEnabled=$($BootstrapEnabled.ToString().ToLowerInvariant())"
 )
 $result.properties.outputs

@@ -1,5 +1,6 @@
 param config object
 param budgetStartDate string
+param bootstrapEnabled bool = false
 
 var prefix = 'demo2-${config.nameSuffix}'
 var tags = { purpose: 'demo2-only' }
@@ -22,6 +23,19 @@ resource storageIdentities 'Microsoft.ManagedIdentity/userAssignedIdentities@202
   location: config.location
   tags: tags
 }]
+resource bootstrap 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = if (bootstrapEnabled) {
+  name: '${prefix}-bootstrap'
+  location: config.location
+  tags: tags
+}
+resource bootstrapReader 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (bootstrapEnabled) {
+  name: guid(resourceGroup().id, bootstrap!.id, 'bootstrap-reader')
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')
+    principalId: bootstrap!.properties.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
 
 resource hsm 'Microsoft.KeyVault/managedHSMs@2024-11-01' = {
   name: config.hsmName
@@ -30,7 +44,7 @@ resource hsm 'Microsoft.KeyVault/managedHSMs@2024-11-01' = {
   sku: { name: 'Standard_B1', family: 'B' }
   properties: {
     tenantId: subscription().tenantId
-    initialAdminObjectIds: config.initialAdminObjectIds
+    initialAdminObjectIds: bootstrapEnabled ? union(config.initialAdminObjectIds, [bootstrap!.properties.principalId]) : config.initialAdminObjectIds
     enableSoftDelete: true
     softDeleteRetentionInDays: config.hsmRetentionDays
     enablePurgeProtection: true
@@ -64,6 +78,8 @@ module host 'modules/host.bicep' = {
     prefix: prefix
     subnetId: network.outputs.computeSubnetId
     controllerIdentityId: controller.id
+    bootstrapIdentityId: bootstrapEnabled ? bootstrap!.id : ''
+    adminUsername: bootstrapEnabled ? 'demoadmin' : config.sshUser
   }
 }
 
@@ -87,6 +103,10 @@ output resources object = {
   hsmUri: hsm.properties.hsmUri
   vmId: host.outputs.vmId
   custodyDiskId: host.outputs.custodyDiskId
+  bootstrapIdentityId: bootstrapEnabled ? bootstrap!.id : ''
+  bootstrapClientId: bootstrapEnabled ? bootstrap!.properties.clientId : ''
+  bootstrapPrincipalId: bootstrapEnabled ? bootstrap!.properties.principalId : ''
+  bootstrapReaderAssignmentId: bootstrapEnabled ? bootstrapReader!.id : ''
   workspaceId: monitoring.outputs.workspaceId
   activationGate: 'Activate the HSM manually through approved private access before Initialize-Hsm; keys and local RBAC must precede the storage stage.'
 }

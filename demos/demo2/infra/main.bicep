@@ -4,6 +4,8 @@ targetScope = 'subscription'
 param config object
 @allowed(['foundation', 'storage'])
 param stage string
+param installationId string = ''
+param bootstrapEnabled bool = false
 param budgetStartDate string = utcNow('yyyy-MM-01T00:00:00Z')
 
 resource demo 'Microsoft.Resources/resourceGroups@2024-03-01' = {
@@ -11,6 +13,7 @@ resource demo 'Microsoft.Resources/resourceGroups@2024-03-01' = {
   location: config.location
   tags: {
     purpose: 'demo2-only'
+    installationId: installationId
   }
 }
 
@@ -26,6 +29,7 @@ module foundation 'foundation.bicep' = if (stage == 'foundation') {
   params: {
     config: config
     budgetStartDate: budgetStartDate
+    bootstrapEnabled: bootstrapEnabled
   }
 }
 

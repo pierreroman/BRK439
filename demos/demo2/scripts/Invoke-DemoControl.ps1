@@ -7,7 +7,7 @@ param(
     [switch]$AuthorizeLiveChanges
 )
 $ErrorActionPreference = 'Stop'
-Import-Module (Join-Path $PSScriptRoot 'Demo.Common.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'Demo.Common.psm1')
 $config = Import-DemoConfig -Path $ConfigPath -Phase Runtime
 if ($Action -in 'Arm','Disable','Restore','Reset' -and -not $AuthorizeLiveChanges) {
     throw "$Action requires -AuthorizeLiveChanges. No request was sent."
@@ -18,6 +18,10 @@ if ([string]$config.sshHost -cnotmatch '^(?=.{1,253}$)[A-Za-z0-9](?:[A-Za-z0-9.-
 $port = 0
 if (-not [int]::TryParse([string]$config.sshPort, [ref]$port) -or $port -lt 1 -or $port -gt 65535) { throw 'Invalid SSH port.' }
 $sshArgs = @('-T','-o','BatchMode=yes','-o','StrictHostKeyChecking=yes','-o','ConnectTimeout=10','-p',"$port")
+if ($env:DEMO2_KNOWN_HOSTS) {
+    if (-not (Test-Path -LiteralPath $env:DEMO2_KNOWN_HOSTS -PathType Leaf)) { throw 'Pinned installation known-hosts file missing.' }
+    $sshArgs += @('-o',"UserKnownHostsFile=$($env:DEMO2_KNOWN_HOSTS)")
+}
 if ($config.sshIdentityFile) { $sshArgs += @('-i',[string]$config.sshIdentityFile) }
 $sshArgs += @("$($config.sshUser)@$($config.sshHost)",'pwsh','-NoProfile','-File','/opt/demo2/host/Submit-Request.ps1',
     '-Action',$Action,'-Target',$Target,'-RunId',$RunId.ToString('D'))

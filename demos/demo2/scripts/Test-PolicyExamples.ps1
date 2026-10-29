@@ -9,7 +9,7 @@ param(
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
-Import-Module (Join-Path $PSScriptRoot 'Demo.Common.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'Demo.Common.psm1')
 $config = Import-DemoConfig -Path $ConfigPath -Phase Runtime
 $scope = "/subscriptions/$($config.subscriptionId)/resourceGroups/$($config.resourceGroup)"
 if ($Example -ne 'positive') {

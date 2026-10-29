@@ -8,7 +8,7 @@ param(
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
-Import-Module (Join-Path $PSScriptRoot 'Demo.Common.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'Demo.Common.psm1')
 $config = Import-DemoConfig -Path $ConfigPath -Phase $Phase
 if ($config.network.accessMode -eq 'existing-private-connection' -and -not $ExistingPrivateConnectivityApproved) {
     throw 'Document/approve private routing and private DNS connectivity into the new demo VNet, then pass -ExistingPrivateConnectivityApproved.'
@@ -64,6 +64,8 @@ foreach ($required in @(
     [pscustomobject]@{ PolicyAlias = $required; Validated = $true }
 }
 $scope = "/subscriptions/$($config.subscriptionId)/resourceGroups/$($config.resourceGroup)"
+$exists = Invoke-AzJson -Arguments @('group','exists','--name',$config.resourceGroup)
+if (-not $exists) { $scope = "/subscriptions/$($config.subscriptionId)" }
 $assignments = Invoke-AzJson -Arguments @('policy', 'assignment', 'list', '--scope', $scope, '--disable-scope-strict-match', 'true')
 $exemptions = Invoke-AzJson -Arguments @('policy', 'exemption', 'list', '--scope', $scope, '--disable-scope-strict-match', 'true')
 [pscustomobject]@{ EffectiveAssignments = $assignments; Exemptions = $exemptions }

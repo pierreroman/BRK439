@@ -4,11 +4,12 @@ param(
     [Parameter(Mandatory)][ValidatePattern('^[a-z_][a-z0-9_-]{0,31}$')][string]$AdminSshUser,
     [Parameter(Mandatory)][string]$OperatorPublicKeyPath,
     [string]$AdminIdentityFile,
-    [switch]$AuthorizeHostChanges
+    [switch]$AuthorizeHostChanges,
+    [switch]$LocalGuest
 )
 $ErrorActionPreference = 'Stop'
 if (-not $AuthorizeHostChanges) { throw 'Installation requires -AuthorizeHostChanges. No host operation was attempted.' }
-Import-Module (Join-Path $PSScriptRoot 'Demo.Common.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'Demo.Common.psm1')
 $config = Import-DemoConfig -Path $ConfigPath -Phase Runtime
 if ($config.sshUser -cnotmatch '^[a-z_][a-z0-9_-]{0,31}$' -or $config.sshUser -in 'root','demo2' -or $config.sshUser -eq $AdminSshUser) { throw 'Use a separate restricted operator account, not root, demo2, or the administrator.' }
 if ([string]$config.sshHost -cnotmatch '^(?=.{1,253}$)[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?$') { throw 'Invalid SSH host.' }
@@ -30,10 +31,16 @@ $sshArgs = @('-T','-o','BatchMode=yes','-o','StrictHostKeyChecking=yes','-o','Co
 $scpArgs = @('-o','BatchMode=yes','-o','StrictHostKeyChecking=yes','-o','ConnectTimeout=10','-P',"$port")
 if ($AdminIdentityFile) { $sshArgs += @('-i',$AdminIdentityFile); $scpArgs += @('-i',$AdminIdentityFile) }
 function Invoke-Admin([string]$RemoteCommand) {
+    if ($LocalGuest) {
+        & /bin/sh -c $RemoteCommand
+        if ($LASTEXITCODE -ne 0) { throw "Local guest installer command failed (exit $LASTEXITCODE)." }
+        return
+    }
     & ssh @sshArgs $destination $RemoteCommand
     if ($LASTEXITCODE -ne 0) { throw "Administrator SSH command failed (exit $LASTEXITCODE)." }
 }
 function Copy-HostFile([string]$LocalPath,[string]$RemotePath) {
+    if ($LocalGuest) { Copy-Item -LiteralPath $LocalPath -Destination $RemotePath; return }
     & scp @scpArgs $LocalPath "${destination}:$RemotePath"
     if ($LASTEXITCODE -ne 0) { throw "SCP failed for $LocalPath (exit $LASTEXITCODE)." }
 }
@@ -196,7 +203,8 @@ systemctl --no-pager status demo2-watchdog.service
     Write-Output 'Host installation completed. No live readiness is implied: verify restricted login, independent heartbeat, read and recovery behavior in an authorized rehearsal.'
 } finally {
     if ($remoteCreated) {
-        & ssh @sshArgs $destination "sudo -n rm -rf -- $remoteStage"
+        if ($LocalGuest) { & /bin/sh -c "sudo -n rm -rf -- $remoteStage" }
+        else { & ssh @sshArgs $destination "sudo -n rm -rf -- $remoteStage" }
         if ($LASTEXITCODE -ne 0) { Write-Error "Remote staging cleanup failed (exit $LASTEXITCODE): $remoteStage" }
     }
     if (Test-Path -LiteralPath $localStage) { Remove-Item -LiteralPath $localStage -Recurse -Force }

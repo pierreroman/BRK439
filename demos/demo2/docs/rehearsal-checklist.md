@@ -12,9 +12,14 @@ Each item requires real evidence after separate authorization.
 - [ ] HSM activated; three or more RSA wrapping key pairs/quorum approved and
       private material/security domain kept outside git and attachments.
 - [ ] Demo exception explicitly labeled: four disposable pairs, 3-of-4 threshold,
-      one operator, online custody (not separate custodians). Persistent LUN-0
-      disk mapping/mount/permissions and reboot persistence verified before key
-      generation; separate protected recovery copy approved and checked.
+      one operator (not separate custodians). Portable setup has a fresh local
+      AES-encrypted PFX, separately retained backup, RSA restore challenges and
+      additional CMS domain encryption/readability verification. Private wrapping
+      keys never go to the guest. The legacy VM-held raw-key design is not reused.
+- [ ] Persistent LUN-0 disk mapping/mount/permissions and reboot persistence
+      verified; raw guest domain removed only after independent backup receipt.
+- [ ] Temporary bootstrap local/ARM grants removed and identity detached;
+      controller, storage and separate manual recovery scopes checked.
 - [ ] Distinct pinned keys and storage bindings; both independent baseline reads.
 - [ ] HSM local RBAC scopes and actual key read/write behavior verified.
 - [ ] Real policy positive control and isolated Deny evidence for each negative case.
