@@ -1,0 +1,7 @@
+SOVEREIGNTY DEMO - SYNTHETIC DATA ONLY
+
+This document contains no customer or personal information.
+The storage account stays in its configured permitted region.
+Its customer-managed key wraps the storage account encryption key.
+Revoking that key's availability can prevent fresh storage reads after propagation.
+It does not recall plaintext that was already downloaded.

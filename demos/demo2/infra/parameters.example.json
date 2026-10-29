@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "stage": { "value": "foundation" },
+    "config": {
+      "value": {
+        "_instructions": "Intentionally incomplete and not deployable. Supply the entire validated private config using Deploy-Demo.ps1; config.example.json defines the contract. No names, regions, image or SKU are invented here."
+      }
+    }
+  }
+}
