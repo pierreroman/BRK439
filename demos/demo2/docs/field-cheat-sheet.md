@@ -7,7 +7,9 @@ Set-Location D:\git\BRK439
 az login --use-device-code
 pwsh -File .\demos\demo2\Start-Demo.ps1 -Mode Setup
 
-# Complete target, network, encrypted backup, quote, preview and consent prompts.
+# Setup creates billed resources and activates HSM; no approval phrases.
+# Enter target, regions/SKU, alert email/budget, network, backup path/passphrase.
+# Independently retain encrypted backups; keep the passphrase separate.
 # Save the installation path printed by Setup.
 $Install = Read-Host 'Paste the installation path printed by Setup'
 $Config = Join-Path $Install 'config.local.json'
@@ -21,8 +23,9 @@ pwsh -File .\demos\demo2\Start-Demo.ps1 -Mode Setup -InstallPath $Install
 ## Off-stage prep
 
 ```powershell
-pwsh -File .\demos\demo2\Start-Demo.ps1 -Mode Rehearse -InstallPath $Install -AuthorizeLiveChanges
-pwsh -File .\demos\demo2\Start-Demo.ps1 -Mode Run -InstallPath $Install -AuthorizeLiveChanges
+# Rehearse performs real policy probes and bounded key disable/restore.
+pwsh -File .\demos\demo2\Start-Demo.ps1 -Mode Rehearse -InstallPath $Install
+pwsh -File .\demos\demo2\Start-Demo.ps1 -Mode Run -InstallPath $Install
 ```
 
 1. Azure portal > selected subscription > demo resource group > verify the tenant, subscription, region and dedicated resources.
@@ -48,10 +51,10 @@ $Install = Read-Host 'Paste the SAME installation path'
 $Config = Join-Path $Install 'config.local.json'
 
 .\demos\demo2\scripts\Test-PolicyExamples.ps1 -ConfigPath $Config `
-    -Example denied-region -AuthorizeLiveChanges -PolicyReviewConfirmed
+    -Example denied-region -AuthorizeLiveChanges -PolicyReviewConfirmed -Confirm:$false
 
 .\demos\demo2\scripts\Test-PolicyExamples.ps1 -ConfigPath $Config `
-    -Example platform-key -AuthorizeLiveChanges -PolicyReviewConfirmed
+    -Example platform-key -AuthorizeLiveChanges -PolicyReviewConfirmed -Confirm:$false
 ```
 
 1. Show both actual `RequestDisallowedByPolicy` results and the intended policy IDs/evaluated conditions; stop on unrelated errors.

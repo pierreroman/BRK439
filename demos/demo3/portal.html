@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Demo 3 - Pull the plug | SIMULATION</title>
+  <script>
+    (() => {
+      const param = new URLSearchParams(window.location.search).get("scoutTheme");
+      const theme =
+        param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      --cp-bg: #f7f4ef;
+      --cp-bg-elevated: #fcfbf8;
+      --cp-surface: #ffffff;
+      --cp-surface-soft: #f5f5f5;
+      --cp-border: #dedede;
+      --cp-border-strong: #919191;
+      --cp-text: #242424;
+      --cp-text-muted: #5c5c5c;
+      --cp-text-soft: #6f6f6f;
+      --cp-accent: #b11f4b;
+      --cp-accent-hover: #9a1a41;
+      --cp-accent-soft: rgba(177, 31, 75, 0.08);
+      --cp-accent-fg: #ffffff;
+      --cp-success: #16a34a;
+      --cp-danger: #dc2626;
+      --cp-warning: #f59e0b;
+      --cp-link: #0078d4;
+      --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+      --cp-overlay: rgba(255, 255, 255, 0.8);
+      --cp-panel: rgba(255, 255, 255, 0.86);
+      --cp-panel-strong: rgba(255, 255, 255, 0.96);
+      --cp-sheen: rgba(255, 255, 255, 0.55);
+      --cp-highlight: rgba(177, 31, 75, 0.12);
+    }
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --cp-bg: #3d3b3a;
+      --cp-bg-elevated: #343231;
+      --cp-surface: #292929;
+      --cp-surface-soft: #2e2e2e;
+      --cp-border: #474747;
+      --cp-border-strong: #5f5f5f;
+      --cp-text: #dedede;
+      --cp-text-muted: #919191;
+      --cp-text-soft: #b0b0b0;
+      --cp-accent: #fd8ea1;
+      --cp-accent-hover: #fb7b91;
+      --cp-accent-soft: rgba(253, 142, 161, 0.14);
+      --cp-accent-fg: #1a1a1a;
+      --cp-success: #4ade80;
+      --cp-danger: #f87171;
+      --cp-warning: #fbbf24;
+      --cp-link: #4da6ff;
+      --cp-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+      --cp-overlay: rgba(41, 41, 41, 0.88);
+      --cp-panel: rgba(41, 41, 41, 0.72);
+      --cp-panel-strong: rgba(41, 41, 41, 0.96);
+      --cp-sheen: rgba(255, 255, 255, 0.04);
+      --cp-highlight: rgba(253, 142, 161, 0.12);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--cp-bg); color: var(--cp-text); font: 17px/1.5 "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif; }
+    header, main, footer { max-width: 1440px; margin: auto; padding: 16px 24px; }
+    h1 { font-size: 32px; margin: 4px 0; }
+    h2 { font-size: 23px; margin: 0 0 12px; }
+    h3 { font-size: 19px; margin-bottom: 4px; }
+    p { margin: 8px 0; }
+    .sticky { position: sticky; top: 0; z-index: 3; background: var(--cp-bg); padding-bottom: 8px; }
+    .banner { background: var(--cp-accent); color: var(--cp-accent-fg); padding: 12px 24px; font-weight: 700; text-align: center; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .card { background: var(--cp-surface); border: 1px solid var(--cp-border); border-radius: 16px; padding: 20px; }
+    .wide { grid-column: 1 / -1; }
+    .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0; }
+    button, select { font: inherit; border: 1px solid var(--cp-border-strong); border-radius: 0.625rem; padding: 8px 12px; background: var(--cp-surface); color: var(--cp-text); }
+    button { cursor: pointer; }
+    button:hover { background: var(--cp-accent-soft); }
+    button.primary { background: var(--cp-accent); color: var(--cp-accent-fg); border-color: var(--cp-accent); }
+    button.primary:hover { background: var(--cp-accent-hover); }
+    button:disabled { cursor: not-allowed; opacity: 0.5; }
+    :focus-visible { outline: 3px solid var(--cp-link); outline-offset: 3px; }
+    .muted, small { color: var(--cp-text-muted); }
+    .status { font-size: 23px; font-weight: 700; }
+    .good { color: var(--cp-success); }
+    .bad { color: var(--cp-danger); }
+    .callout { border-left: 4px solid var(--cp-accent); background: var(--cp-accent-soft); padding: 12px; }
+    #message { max-width: 1392px; min-height: 48px; padding: 12px; background: var(--cp-surface); border: 1px solid var(--cp-border); border-radius: 0.625rem; margin: 8px auto 0; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; font: 15px/1.5 Consolas, "Courier New", Courier, monospace; background: var(--cp-surface-soft); padding: 12px; border-radius: 0.625rem; }
+    ul, ol { padding-left: 24px; }
+    #audit { max-height: 240px; overflow-y: auto; }
+    [hidden] { display: none !important; }
+    @media (max-width: 850px) { .grid { grid-template-columns: 1fr; } header, main, footer { padding: 12px; } }
+    @media print { button, select { display: none; } }
+  </style>
+</head>
+<body>
+  <div class="sticky">
+    <div class="banner">LAPTOP SIMULATION - NOT AZURE LOCAL - NO REAL VMs, POLICY, RBAC OR UPDATES</div>
+    <div id="message" role="status" aria-live="polite">Ready. Start with the local cluster view, then disconnect the simulated uplink.</div>
+  </div>
+  <header>
+    <h1>Pull the plug</h1>
+    <p>Myth 3: "Disconnected means the operational problem is solved."</p>
+    <p class="muted">An illustrative local control plane. All resources, connectivity results, identities, dates and approval stages below are simulated.</p>
+    <div class="toolbar">
+      <label for="actor">Simulated identity</label>
+      <select id="actor">
+        <option value="admin">Local administrator</option>
+        <option value="viewer">demo-viewer (requires Reader assignment)</option>
+      </select>
+      <button id="reset">Reset rehearsal</button>
+      <button id="export">Export simulated evidence</button>
+    </div>
+  </header>
+  <main>
+    <div id="portal" class="grid">
+      <section class="card">
+        <h2>1. Local cluster &amp; uplink</h2>
+        <p>Cluster: <strong>stage-local-01 (fictional)</strong></p>
+        <p>Local control plane: <strong class="good">Available in this browser</strong></p>
+        <p>Simulated uplink: <span id="uplink" class="status"></span></p>
+        <div class="toolbar">
+          <button id="cable" class="primary">Pull simulated uplink</button>
+          <button id="ping">Run simulated public ping</button>
+        </div>
+        <pre id="ping-output">No ping run. This simulator never sends ICMP or probes the internet.</pre>
+        <p>Existing workload: <strong class="good">Running (model only)</strong></p>
+        <p>Animation tick: <span id="heartbeat">0</span> <small>(browser timer, not VM telemetry)</small></p>
+        <p class="muted">The toggle does not disable Wi-Fi, Ethernet, VPNs or any actual network adapter. For a real cable pull, independently verify all alternate uplinks are off.</p>
+      </section>
+      <section class="card">
+        <h2>2. Deploy locally</h2>
+        <p>Pre-staged illustrative image: <strong>demo-linux-local</strong></p>
+        <p>Scope: <strong>rg-demo3</strong></p>
+        <button id="deploy" class="primary">Deploy simulated VM</button>
+        <ul id="vms"></ul>
+        <p class="muted">Creates a browser record only. No hypervisor, guest OS, CPU, memory or storage is provisioned.</p>
+        <h3>Resource groups</h3>
+        <ul id="groups"></ul>
+      </section>
+      <section class="card">
+        <h2>3. Governance without the cloud</h2>
+        <p>Policy model: <strong>Require Owner tag on new resource groups</strong></p>
+        <p id="policy-state"></p>
+        <div class="toolbar">
+          <button id="policy">Assign simulated policy</button>
+          <button id="untagged">Try untagged resource group</button>
+          <button id="tagged">Create tagged resource group</button>
+        </div>
+        <p>RBAC model: <strong>demo-viewer / Reader / rg-demo3</strong></p>
+        <p id="role-state"></p>
+        <button id="role">Assign simulated Reader role</button>
+        <p class="muted">Optional proof: select demo-viewer above and try deploying a VM; this toy model denies it. Switch back to administrator afterward. This is not a security boundary.</p>
+      </section>
+      <section class="card" id="updates">
+        <h2>4. Who brings the next security update?</h2>
+        <div class="callout"><strong>"When did this cluster last receive a security update, and how will the next one get here?"</strong></div>
+        <p>Last applied: <strong id="last-update"></strong></p>
+        <p class="muted">Fictional rehearsal date, NOT an inventory or scan of this laptop or a cluster.</p>
+        <p id="cloud-state"></p>
+        <p>Automatic cloud patch delivery: <strong>Not implemented in this simulator</strong></p>
+        <p>Example package: <strong>DEMO-SECURITY-002 (no payload)</strong></p>
+        <p>Illustrative "edge approvals": <strong id="update-stage"></strong></p>
+        <div class="toolbar">
+          <button id="import">1. Import (mock)</button>
+          <button id="review">2. Review (mock)</button>
+          <button id="sign">3. Sign (mock)</button>
+          <button id="apply">4. Apply (mock)</button>
+        </div>
+        <p class="muted">Teaching sequence, not a product workflow. No package is downloaded, verified, signed or installed. Real updates require approved packages, secure transfer, validation, backups, maintenance planning and audit.</p>
+      </section>
+      <section class="card wide">
+        <h2>Local simulated audit trail</h2>
+        <pre id="audit"></pre>
+        <p class="callout">The workload not caring is the setup, not the punchline. Disconnection shifts responsibility for update intake, threat-intelligence refresh, change approval, signing, backup, monitoring and recovery to the operator.</p>
+      </section>
+      <section id="evidence-panel" class="card wide" hidden>
+        <h2>Simulated evidence JSON</h2>
+        <p>Copy this JSON if your browser blocks the optional download. This is a snapshot from when you selected Export, not live evidence.</p>
+        <pre id="evidence" tabindex="0" aria-label="Copyable simulated evidence JSON"></pre>
+      </section>
+    </div>
+    <section id="test-panel" class="card" hidden>
+      <h2>Offline model self-tests</h2>
+      <p>Isolated in-memory tests. Your saved rehearsal is not read or modified.</p>
+      <pre id="test-results"></pre>
+    </section>
+  </main>
+  <footer>No external assets, analytics, dependencies, cloud credentials or network requests. State is stored only in this browser profile; exports contain simulated data.</footer>
+  <script>
+    "use strict";
+    (() => {
+      const storageKey = "brk439-demo3-simulation-v1";
+      const clone = value => JSON.parse(JSON.stringify(value));
+      const initialState = () => ({
+        schema: 1, simulation: true, connected: true, actor: "admin",
+        policy: false, reader: false, stage: "Not imported",
+        lastUpdate: "2026-09-15T10:00:00.000Z",
+        vms: [{ name: "existing-workload", status: "Running" }],
+        groups: [{ name: "rg-demo3", owner: "stage-operator" }],
+        audit: []
+      });
+
+      function validateState(s) {
+        const stages = ["Not imported", "Imported", "Reviewed", "Signed", "Applied"];
+        if (!s || s.schema !== 1 || s.simulation !== true ||
+            typeof s.connected !== "boolean" || typeof s.policy !== "boolean" ||
+            typeof s.reader !== "boolean" || !["admin", "viewer"].includes(s.actor) ||
+            (s.actor === "viewer" && !s.reader) || !stages.includes(s.stage) ||
+            typeof s.lastUpdate !== "string" || !Number.isFinite(Date.parse(s.lastUpdate)) ||
+            !Array.isArray(s.vms) || !s.vms.length ||
+            !s.vms.every(v => v && typeof v.name === "string" && v.status === "Running") ||
+            !Array.isArray(s.groups) || !s.groups.length ||
+            !s.groups.every(g => g && typeof g.name === "string" && typeof g.owner === "string") ||
+            !Array.isArray(s.audit) || s.audit.length > 100 ||
+            !s.audit.every(e => typeof e === "string")) {
+          throw new Error("Saved simulation state is invalid. Use Reset rehearsal to replace only this demo's saved state.");
+        }
+      }
+
+      function createModel(storage, now = () => new Date().toISOString()) {
+        const saved = storage.getItem(storageKey);
+        let state = saved === null ? initialState() : JSON.parse(saved);
+        validateState(state);
+        function save(next) {
+          validateState(next);
+          storage.setItem(storageKey, JSON.stringify(next));
+          state = next;
+        }
+        return {
+          snapshot: () => clone(state),
+          reset: () => save(initialState()),
+          execute(action, input) {
+            const next = clone(state);
+            if (action === "actor") {
+              if (!["admin", "viewer"].includes(input)) throw new Error("Unknown simulated identity.");
+              if (input === "viewer" && !next.reader) throw new Error("Assign demo-viewer the Reader role first.");
+              next.actor = input;
+            } else {
+              if (next.actor !== "admin") throw new Error("RBAC MODEL DENIED: Reader cannot change resources. Select Local administrator.");
+              switch (action) {
+                case "cable": next.connected = !next.connected; break;
+                case "deploy":
+                  next.vms.push({ name: `demo-vm-${next.vms.length}`, status: "Running" });
+                  break;
+                case "policy": next.policy = true; break;
+                case "role": next.reader = true; break;
+                case "untagged":
+                case "tagged": {
+                  if (next.policy && action === "untagged") {
+                    throw new Error("POLICY MODEL DENIED: new resource groups require the Owner tag. No group was created.");
+                  }
+                  next.groups.push({
+                    name: `rg-demo3-${next.groups.length}`,
+                    owner: action === "tagged" ? "stage-operator" : ""
+                  });
+                  break;
+                }
+                case "import":
+                case "review":
+                case "sign":
+                case "apply": {
+                  const transitions = {
+                    import: ["Not imported", "Imported"],
+                    review: ["Imported", "Reviewed"],
+                    sign: ["Reviewed", "Signed"],
+                    apply: ["Signed", "Applied"]
+                  };
+                  const [required, target] = transitions[action];
+                  if (next.stage !== required) throw new Error(`UPDATE MODEL BLOCKED: ${action} requires stage "${required}".`);
+                  next.stage = target;
+                  if (action === "apply") next.lastUpdate = now();
+                  break;
+                }
+                default: throw new Error(`Unknown simulation action: ${action}`);
+              }
+            }
+            next.audit.unshift(`${now()} | SIMULATED | ${next.actor} | ${action}${action === "actor" ? `: ${input}` : ""}`);
+            next.audit = next.audit.slice(0, 100);
+            save(next);
+            return clone(next);
+          }
+        };
+      }
+
+      function runSelfTests() {
+        const results = [];
+        const assert = (condition, message) => { if (!condition) throw new Error(message); };
+        const memory = () => {
+          const items = new Map();
+          return {
+            getItem: key => items.has(key) ? items.get(key) : null,
+            setItem: (key, value) => items.set(key, value)
+          };
+        };
+        const throws = (fn, text) => {
+          let caught = false;
+          try { fn(); } catch (error) {
+            caught = true;
+            assert(error.message.includes(text), `Unexpected error: ${error.message}`);
+          }
+          assert(caught, `Expected failure containing "${text}"`);
+        };
+        const test = (name, fn) => {
+          try { fn(); results.push({ name, passed: true }); }
+          catch (error) { results.push({ name, passed: false, error: error.message }); }
+        };
+        const clock = () => "2026-10-30T12:00:00.000Z";
+        test("Starts clearly marked as simulation with one running workload", () => {
+          const s = createModel(memory(), clock).snapshot();
+          assert(s.simulation && s.connected && s.vms.length === 1 && s.vms[0].status === "Running", "Invalid baseline");
+        });
+        test("Cable pull preserves workload and permits local VM deployment", () => {
+          const m = createModel(memory(), clock);
+          m.execute("cable"); m.execute("deploy");
+          const s = m.snapshot();
+          assert(!s.connected && s.vms.length === 2 && s.vms.every(v => v.status === "Running"), "Offline deployment failed");
+        });
+        test("Policy assignment works offline; rejects untagged groups, allows tagged", () => {
+          const m = createModel(memory(), clock);
+          m.execute("cable"); m.execute("policy");
+          throws(() => m.execute("untagged"), "POLICY MODEL DENIED");
+          assert(m.snapshot().groups.length === 1, "Denied group was created");
+          m.execute("tagged");
+          assert(m.snapshot().groups.length === 2, "Tagged group was not created");
+        });
+        test("Policy does not retroactively delete existing untagged groups", () => {
+          const m = createModel(memory(), clock);
+          m.execute("untagged"); m.execute("policy");
+          assert(m.snapshot().groups.length === 2, "Existing group was removed");
+        });
+        test("Reader assignment works offline and denies all model mutations", () => {
+          const m = createModel(memory(), clock);
+          m.execute("cable"); m.execute("role"); m.execute("actor", "viewer");
+          const before = JSON.stringify(m.snapshot());
+          for (const action of ["deploy", "policy", "role", "tagged", "untagged", "import", "review", "sign", "apply", "cable"]) {
+            throws(() => m.execute(action), "RBAC MODEL DENIED");
+          }
+          assert(JSON.stringify(m.snapshot()) === before, "Denied operation mutated state");
+          m.execute("actor", "admin"); m.execute("deploy");
+        });
+        test("Viewer cannot be selected before role assignment", () => {
+          throws(() => createModel(memory(), clock).execute("actor", "viewer"), "Reader role first");
+        });
+        test("Review, sign and apply cannot skip approval stages", () => {
+          const m = createModel(memory(), clock);
+          for (const action of ["review", "sign", "apply"]) throws(() => m.execute(action), "UPDATE MODEL BLOCKED");
+          m.execute("import");
+          throws(() => m.execute("apply"), "UPDATE MODEL BLOCKED");
+          m.execute("review");
+          throws(() => m.execute("apply"), "UPDATE MODEL BLOCKED");
+        });
+        test("Complete mock update changes fictional date only after apply", () => {
+          const m = createModel(memory(), clock);
+          const before = m.snapshot().lastUpdate;
+          m.execute("cable"); m.execute("import"); m.execute("review"); m.execute("sign");
+          assert(m.snapshot().lastUpdate === before, "Date changed before apply");
+          m.execute("apply");
+          assert(m.snapshot().stage === "Applied" && m.snapshot().lastUpdate === clock(), "Apply did not update model");
+        });
+        test("Reconnect does not patch or advance approvals automatically", () => {
+          const m = createModel(memory(), clock);
+          const before = m.snapshot().lastUpdate;
+          m.execute("cable"); m.execute("cable");
+          assert(m.snapshot().lastUpdate === before && m.snapshot().stage === "Not imported", "Reconnect auto-patched");
+        });
+        test("State survives model reload using the same storage", () => {
+          const store = memory(), m = createModel(store, clock);
+          m.execute("cable"); m.execute("deploy"); m.execute("policy"); m.execute("role");
+          assert(JSON.stringify(createModel(store, clock).snapshot()) === JSON.stringify(m.snapshot()), "Persistence failed");
+        });
+        test("Reset restores baseline without clearing unrelated storage", () => {
+          const store = memory(), m = createModel(store, clock);
+          store.setItem("unrelated", "keep");
+          m.execute("deploy"); m.reset();
+          assert(m.snapshot().vms.length === 1 && m.snapshot().connected && store.getItem("unrelated") === "keep", "Reset affected unrelated data");
+        });
+        test("Corrupt and unsupported saved state is rejected explicitly", () => {
+          const store = memory();
+          store.setItem(storageKey, "invalid-json");
+          throws(() => createModel(store), "JSON");
+          store.setItem(storageKey, '{"schema":99}');
+          throws(() => createModel(store), "invalid");
+        });
+        test("Storage failure cannot produce successful in-memory deployment", () => {
+          const store = memory(), m = createModel(store, clock);
+          store.setItem = () => { throw new Error("Storage unavailable"); };
+          throws(() => m.execute("deploy"), "Storage unavailable");
+          assert(m.snapshot().vms.length === 1, "Failed write still changed state");
+        });
+        test("Snapshot mutations cannot change the saved model", () => {
+          const m = createModel(memory(), clock), s = m.snapshot();
+          s.vms.push({ name: "injected", status: "Running" });
+          assert(m.snapshot().vms.length === 1, "Model leaked mutable reference");
+        });
+        test("Unknown actions and identities fail explicitly", () => {
+          const m = createModel(memory(), clock);
+          throws(() => m.execute("unknown"), "Unknown simulation action");
+          throws(() => m.execute("actor", "unknown"), "Unknown simulated identity");
+        });
+        test("Audit is explicitly simulated and capped at 100 entries", () => {
+          const m = createModel(memory(), clock);
+          for (let i = 0; i < 105; i++) m.execute("cable");
+          assert(m.snapshot().audit.length === 100 && m.snapshot().audit.every(e => e.includes("SIMULATED")), "Invalid audit");
+        });
+        return results;
+      }
+
+      const byId = id => document.getElementById(id);
+      if (new URLSearchParams(location.search).get("selftest") === "1") {
+        byId("portal").hidden = true;
+        document.querySelector("header .toolbar").hidden = true;
+        byId("test-panel").hidden = false;
+        const results = runSelfTests();
+        const failed = results.filter(r => !r.passed).length;
+        byId("test-results").textContent = results.map(r => `${r.passed ? "PASS" : "FAIL"} ${r.name}${r.error ? `: ${r.error}` : ""}`).join("\n") +
+          `\n\n${results.length - failed}/${results.length} passed; ${failed} failed.`;
+        byId("message").textContent = failed ? "SELF-TEST FAILED" : "SELF-TEST PASSED";
+        document.title = `Demo 3 self-test: ${failed ? "FAIL" : "PASS"}`;
+        return;
+      }
+
+      let model;
+      function notify(text, error = false) {
+        byId("message").textContent = text;
+        byId("message").className = error ? "bad" : "good";
+      }
+      function list(id, values) {
+        byId(id).replaceChildren(...values.map(text => {
+          const li = document.createElement("li"); li.textContent = text; return li;
+        }));
+      }
+      function render() {
+        const s = model.snapshot();
+        byId("actor").value = s.actor;
+        byId("uplink").textContent = s.connected ? "CONNECTED (simulated)" : "DISCONNECTED (simulated)";
+        byId("uplink").className = `status ${s.connected ? "good" : "bad"}`;
+        byId("cable").textContent = s.connected ? "Pull simulated uplink" : "Reconnect simulated uplink";
+        byId("policy-state").textContent = s.policy ? "Assigned locally (simulated); enforced on new groups only." : "Not assigned.";
+        byId("role-state").textContent = s.reader ? "Reader assigned locally (simulated)." : "Not assigned.";
+        byId("last-update").textContent = `${s.lastUpdate} (fictional)`;
+        byId("cloud-state").textContent = s.connected ?
+          "Cloud-feed model: available; no real feed is connected." :
+          "Cloud-feed model: unavailable. Threat-intelligence refresh and cloud patch delivery need an operator-managed path.";
+        byId("update-stage").textContent = s.stage;
+        byId("audit").textContent = s.audit.join("\n") || "No simulated changes yet.";
+        list("vms", s.vms.map(v => `${v.name} - ${v.status} (simulated)`));
+        list("groups", s.groups.map(g => `${g.name} - Owner=${g.owner || "(missing)"}`));
+      }
+      function recoverableStartup() {
+        try {
+          model = createModel(window.localStorage);
+          render();
+          if (model.snapshot().audit.length) notify("Saved simulation restored. Continue from the displayed state, or Reset rehearsal for a fresh performance.");
+        } catch (error) {
+          model = undefined;
+          notify(`Cannot load or save rehearsal state: ${error.message} Enable browser storage or use Reset rehearsal.`, true);
+        }
+        document.querySelectorAll("#portal button, #actor, #export").forEach(control => { control.disabled = !model; });
+      }
+      const actions = {
+        cable: "Simulated uplink changed. Laptop networking was not changed. Run the simulated ping.",
+        deploy: "Simulated VM record deployed locally. No real VM was created.",
+        policy: "Simulated policy assigned. Try an untagged group to show denial.",
+        role: "Simulated Reader role assigned. Optionally select demo-viewer to demonstrate denial.",
+        tagged: "Tagged resource group record created (simulated).",
+        untagged: "Untagged resource group record created (simulated; policy is not assigned yet).",
+        import: "Mock package imported. No bytes transferred; now review the change.",
+        review: "Mock review recorded. Now illustrate signing.",
+        sign: "Mock signing approval recorded. No cryptographic signature was generated or verified.",
+        apply: "Mock update applied. Only the fictional date changed; no software was patched."
+      };
+      for (const [action, message] of Object.entries(actions)) {
+        byId(action).addEventListener("click", () => {
+          try {
+            model.execute(action); render(); notify(message);
+            if (action === "cable") byId("ping-output").textContent = "Uplink changed. Run the simulated ping again; previous results are not current.";
+          } catch (error) { notify(error.message, true); }
+        });
+      }
+      byId("actor").addEventListener("change", event => {
+        try { model.execute("actor", event.target.value); render(); notify("Simulated identity changed; no real authentication occurred."); }
+        catch (error) { render(); notify(error.message, true); }
+      });
+      byId("ping").addEventListener("click", () => {
+        const connected = model.snapshot().connected;
+        byId("ping-output").textContent = connected ?
+          "SIMULATED ping 1.1.1.1\nReply from 1.1.1.1 (model output only)" :
+          "SIMULATED ping 1.1.1.1\nRequest timed out. 100% loss (model output only)";
+        notify("Simulated ping complete. This is NOT a measurement of public internet connectivity.");
+      });
+      byId("reset").addEventListener("click", () => {
+        if (!confirm("Reset this demo's saved simulation? This does not change any Azure resources or unrelated browser data.")) return;
+        try {
+          window.localStorage.setItem(storageKey, JSON.stringify(initialState()));
+          recoverableStartup();
+          if (model) {
+            byId("ping-output").textContent = "No simulated ping run.";
+            byId("evidence").textContent = "";
+            byId("evidence-panel").hidden = true;
+            notify("Rehearsal reset. Baseline restored; unrelated browser data preserved.");
+          }
+        } catch (error) { notify(`Reset failed: ${error.message}`, true); }
+      });
+      byId("export").addEventListener("click", () => {
+        let url;
+        try {
+          const evidence = { simulation: true, disclaimer: "Not Azure evidence. Fictional browser model only.", exportedAt: new Date().toISOString(), state: model.snapshot() };
+          const json = JSON.stringify(evidence, null, 2);
+          byId("evidence").textContent = json;
+          byId("evidence-panel").hidden = false;
+          url = URL.createObjectURL(new Blob([json], { type: "application/json" }));
+          const link = document.createElement("a");
+          link.href = url; link.download = "demo3-SIMULATED-evidence.json";
+          document.body.append(link); link.click(); link.remove();
+          notify("Simulated JSON is available below the audit trail. Download requested; if blocked, copy the displayed JSON.");
+        } catch (error) { notify(`Download failed: ${error.message}. If JSON is displayed below the audit trail, copy it instead.`, true); }
+        finally { if (url) setTimeout(() => URL.revokeObjectURL(url), 1000); }
+      });
+      recoverableStartup();
+      let ticks = 0;
+      setInterval(() => { byId("heartbeat").textContent = String(++ticks); }, 1000);
+    })();
+  </script>
+</body>
+</html>

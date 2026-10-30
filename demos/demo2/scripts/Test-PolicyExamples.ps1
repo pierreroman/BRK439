@@ -36,8 +36,9 @@ if (-not $AuthorizeLiveChanges) {
 }
 if (-not $PolicyReviewConfirmed) { throw 'Review inherited policy/exemption/enforcement evidence and cross-region CMK prerequisites before passing -PolicyReviewConfirmed.' }
 Assert-DemoAzureContext -Config $config
-$candidate = 'demo2' + ([guid]::NewGuid().ToString('N').Substring(0, 16))
-$deployment = "demo2-policy-$Example-$([guid]::NewGuid().ToString('N').Substring(0, 8))"
+$probeName = @{positive='positive';'denied-region'='region';'platform-key'='platform'}[$Example]
+$candidate = "demo2$($config.nameSuffix)$probeName"
+$deployment = "demo2-policy-$($config.nameSuffix)-$Example"
 if (-not $PSCmdlet.ShouldProcess("$scope/$candidate", "Create billable $Example policy probe; no automatic cleanup")) { return }
 $template = Join-Path $PSScriptRoot '..\infra\policy-example.bicep'
 $arguments = @(

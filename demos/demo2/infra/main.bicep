@@ -18,7 +18,7 @@ resource demo 'Microsoft.Resources/resourceGroups@2024-03-01' = {
 }
 
 module policy 'modules/policy.bicep' = if (stage == 'foundation' && config.policyMode == 'sandbox') {
-  name: 'demo2-sandbox-policy'
+  name: 'demo2-${config.nameSuffix}-sandbox-policy'
   params: { config: config }
   dependsOn: [demo]
 }

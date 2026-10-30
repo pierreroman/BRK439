@@ -1,0 +1,12 @@
+FICTIONAL TRAINING DATA. No actual customers, employees or incidents.
+
+Incident: Maple Relay, training exercise MR-042.
+At 09:12 UTC a configuration change routed the fictional Northstar dashboard's
+read requests to a retired cache. Users saw stale status cards for 18 minutes.
+The underlying sensor ingestion service continued collecting readings.
+At 09:18 UTC the on-call operator identified the cache routing mismatch.
+At 09:30 UTC the operator rolled back the configuration and verified fresh cards.
+No data loss was observed in the exercise. Whether any reports exported during
+the incident contain stale values remains unknown.
+Next actions: add a cache-target validation check before deployment; test rollback
+monthly; review exported reports covering 09:12 to 09:30 UTC.

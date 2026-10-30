@@ -7,7 +7,7 @@ param(
     [switch]$HsmBootstrapVerified,
     [switch]$ExistingPrivateConnectivityApproved,
     [switch]$ExistingEgressApproved,
-    [string]$InstallationId = '',
+    [ValidatePattern('^$|^[a-f0-9]{32}$')][string]$InstallationId = '',
     [switch]$BootstrapEnabled
 )
 Set-StrictMode -Version Latest
@@ -53,7 +53,7 @@ if ($Stage -eq 'storage') {
 }
 $parameters = 'config=@' + (Resolve-Path -LiteralPath $ConfigPath).ProviderPath
 $result = Invoke-AzJson -Arguments @(
-    'deployment', 'sub', 'create', '--name', "demo2-$Stage-$([DateTime]::UtcNow.ToString('yyyyMMddHHmmss'))",
+    'deployment', 'sub', 'create', '--name', $(if ($InstallationId) { if ($Stage -eq 'foundation') { "demo2-$InstallationId" } else { "demo2-storage-$InstallationId" } } else { "demo2-$($config.nameSuffix)-$Stage" }),
     '--subscription', $config.subscriptionId, '--location', $config.location,
     '--template-file', $template, '--parameters', $parameters, "stage=$Stage",
     "installationId=$InstallationId", "bootstrapEnabled=$($BootstrapEnabled.ToString().ToLowerInvariant())"
