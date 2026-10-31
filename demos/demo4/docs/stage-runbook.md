@@ -1,5 +1,8 @@
 # Demo 4 - Four-minute operator runbook
 
+For exact setup commands and a numbered performance sequence, use the
+[presenter cheat sheet](presenter-cheat-sheet.md).
+
 ## Pre-stage (not part of the four minutes)
 
 Complete [setup and live acceptance](../README.md) on the actual laptop and

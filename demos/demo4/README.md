@@ -5,6 +5,9 @@ on the presenter's laptop, an offline blind A/B reveal, and a fallback built
 **only from your own successful captures**. No sample answer, invented latency or
 silent mock fallback is included.
 
+**Presenting the demo:** follow the [step-by-step presenter cheat sheet](docs/presenter-cheat-sheet.md)
+for exact commands, audience voting, reveal cues and recovery actions.
+
 The authenticated SharePoint plan was unavailable. This kit follows the pasted
 D4 script and the requested real cloud + laptop setup. It does not depend on
 Demo 3, which is currently a laptop simulator, not an Azure Local cluster.

@@ -3,6 +3,9 @@
 **Mode: labelled laptop simulation throughout.** Never hide the top banner.
 This is a teaching model, not an actual Azure Local deployment.
 
+For exact commands and a numbered click-by-click sequence, use the
+[presenter cheat sheet](presenter-cheat-sheet.md).
+
 ## Before the room opens
 
 - Run [the launcher](../Start-Demo.ps1) and the self-tests described in

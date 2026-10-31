@@ -6,6 +6,9 @@ automation, enable tenant settings, assign roles or provision billable resources
 The optional operations agent is omitted. Data Guardian remains an explanation,
 not a demo of Microsoft's internal controls.
 
+**Presenting the demo:** follow the [step-by-step presenter cheat sheet](docs/presenter-cheat-sheet.md)
+for request checks, the manual Deny action, audit capture and fallback cues.
+
 ## The prerequisite you cannot deploy
 
 A Microsoft engineer's support-access workflow initiates a Lockbox request when

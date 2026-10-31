@@ -5,6 +5,9 @@ Azure Policy, RBAC, an update service, or a disconnected control plane.**
 It models the six-minute story on an ordinary laptop, as requested. Keep the
 simulation banner visible throughout. Do not present it as product validation.
 
+**Presenting the demo:** follow the [step-by-step presenter cheat sheet](docs/presenter-cheat-sheet.md)
+for exact commands, clicks, expected results, speaking cues and recovery actions.
+
 ## What anyone running it needs
 
 - A Windows laptop with Windows PowerShell 5.1 or PowerShell 7.

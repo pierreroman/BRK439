@@ -1,5 +1,8 @@
 # Demo 5 - Who touched my system?
 
+For exact commands and a numbered click-by-click sequence, use the
+[presenter cheat sheet](presenter-cheat-sheet.md).
+
 ## Before the session
 
 - Complete [setup](../README.md) with the Microsoft coordinating team.
